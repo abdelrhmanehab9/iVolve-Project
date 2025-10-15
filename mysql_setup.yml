@@ -1,0 +1,41 @@
+---
+- name: Setup MySQL and iVolve DB
+  hosts: all
+  become: yes
+  vars_files:
+    - vault.yml
+
+  tasks:
+    - name: Install MySQL server
+      yum:
+        name: mysql-server
+        state: present
+        update_cache: yes
+
+    - name: Ensure MySQL service is running
+      service:
+        name: mysqld
+        state: started
+        enabled: yes
+
+    - name: Create iVolve database
+      community.mysql.mysql_db:
+        name: iVolve
+        state: present
+        login_user: root
+
+    - name: Create user 'iVolveUser' with privileges
+      community.mysql.mysql_user:
+        name: iVolveUser
+        password: "{{ db_password }}"
+        priv: "iVolve.*:ALL"
+        state: present
+        login_user: root
+
+    - name: Verify DB connection and list databases
+      command: mysql -u iVolveUser -p{{ db_password }} -e "SHOW DATABASES;"
+      register: db_list
+
+    - debug:
+        msg: "{{ db_list.stdout_lines }}"
+
