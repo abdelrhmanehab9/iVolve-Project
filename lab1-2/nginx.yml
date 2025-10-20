@@ -1,0 +1,27 @@
+---
+- name: Automated Web Server Configuration
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Start and enable Nginx
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: Customize the web page
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <html>
+          <head><title>Welcome</title></head>
+          <body>
+            <h1>Hello from Ansible Automated Web Server!</h1>        
+          </body>
+          </html>---
